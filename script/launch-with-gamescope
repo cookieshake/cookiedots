@@ -1,0 +1,25 @@
+#!/bin/bash
+
+screen_width=$(hyprctl monitors -j | jq .[0].width)
+screen_height=$(hyprctl monitors -j | jq .[0].height)
+
+if (( screen_width >= "3000" )); then
+  ratio="3"
+elif (( screen_width >= "2000" )); then
+  ratio="2"
+else
+  ratio="4/3"
+fi
+
+game_width=$(jq -n "$screen_width / ($ratio)")
+game_height=$(jq -n "$screen_height / ($ratio)")
+
+if [[ -z "$@" ]]; then
+  echo "Args are not passed"
+  echo "Screen Resolution: ${screen_width}x${screen_height}"
+  echo "Game Resolution: ${game_width}x${game_height}"
+  exit 1
+fi
+
+exec gamescope -r 60 -o 30 -Y -f -w $game_width -h $game_height -W $screen_width -H $screen_height -- "$@"
+
